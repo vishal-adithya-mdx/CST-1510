@@ -1,0 +1,252 @@
+================================================================================
+AUDIT REPORT: POTENTIAL MISTAKES IN W04_Lab.ipynb
+Notebook: LAB/W04_Lab.ipynb
+================================================================================
+
+This document flags all discrepancies, logic errors, missing steps, and formatting
+mismatches identified between the markdown instructions (and expected outputs)
+and the code cells implemented in `W04_Lab.ipynb`.
+
+--------------------------------------------------------------------------------
+1. CELL 6 — DRILL D2: Slicing
+--------------------------------------------------------------------------------
+- Markdown Instructions:
+  "2. Use slicing to print: the middle four, the first two, and everything from position 3 to the end."
+  Expected output:
+    [10, 15, 20, 25]
+    [5, 10]
+    [20, 25, 30]
+
+- Current Code:
+    values = [5,10,15,20,25,30]
+    print(values[1:6])
+    print(values[:2])
+    print(values[2:])
+
+- Actual Output:
+    [10, 15, 20, 25, 30]
+    [5, 10]
+    [15, 20, 25, 30]
+
+- Flagged Mistakes:
+  1) `values[1:6]` slices 5 items (`[10, 15, 20, 25, 30]`) instead of the middle 4 (`[10, 15, 20, 25]`).
+     Correction: Should be `values[1:5]` (or `values[1:-1]`).
+  2) `values[2:]` slices from index 2 (`[15, 20, 25, 30]`). The instruction specifies "from position 3 to the end", which corresponds to index 3.
+     Correction: Should be `values[3:]` to output `[20, 25, 30]`.
+
+
+--------------------------------------------------------------------------------
+2. CELL 8 — DRILL D3: Change a list, then loop over it
+--------------------------------------------------------------------------------
+- Markdown Instructions:
+  "3. Add 40 to the end with .append() and print the list.
+   4. Remove 20 with .remove() and print the list."
+  Expected output:
+    [99, 20, 30]
+    [99, 20, 30, 40]
+    [99, 30, 40]
+    99
+    30
+    40
+
+- Current Code:
+    values = [10,20,30]
+    values[0] = 99
+    print(values)
+    values.append(40)
+    values.remove(20)
+    print(values)
+    for v in values:
+        print(v)
+
+- Actual Output:
+    [99, 20, 30]
+    [99, 30, 40]
+    99
+    30
+    40
+
+- Flagged Mistake:
+  - Step 3 explicitly asks to print the list immediately after `.append(40)`.
+  - The code appends `40` and removes `20` before printing, skipping the intermediate state `[99, 20, 30, 40]`.
+  Correction: Add `print(values)` immediately after `values.append(40)`.
+
+
+--------------------------------------------------------------------------------
+3. CELL 25 — DRILL D11: Sets: unique values and quick checks (Minor/Formatting)
+--------------------------------------------------------------------------------
+- Markdown Instructions:
+  "2. Make a set from the list, and print how many unique IPs there are.
+   3. Print whether '10.0.0.9' is in the set, and whether '10.0.0.1' is."
+  Expected output:
+    3, True, False
+
+- Current Code:
+    print(f"{x},{y},{z}")
+
+- Actual Output:
+    3,True,False
+
+- Flagged Observation:
+  - The output formats as `3,True,False` without spaces.
+  - Across the notebook drills (e.g. D1, D5, D8), multi-item outputs are either printed individually on separate lines (`print(x)`, `print(y)`, `print(z)`) or comma-separated with spaces (`print(x, y, z)` -> `3 True False`).
+
+
+--------------------------------------------------------------------------------
+4. CELL 30 — DRILL D13: Read a file line by line and split each line
+--------------------------------------------------------------------------------
+- Markdown Instructions:
+  "2. For each line, use .strip(), then .split(',') into label, value, limit."
+
+- Current Code:
+    with open("records_sample.txt","r") as f:
+        for l in f.readlines():
+            label,value,limit = l.split(",")
+            value = float(value)
+            limit = float(limit)
+            print(label,value,limit)
+
+- Flagged Mistake:
+  - `.strip()` was omitted entirely. The line is directly split as `l.split(",")`.
+  - While `float(limit)` strips trailing newlines during numeric conversion, the explicit instruction "use .strip(), then .split(',')" was ignored.
+  - Additionally, idiomatic file iteration in Python is `for l in f:` instead of `for l in f.readlines()`.
+  Correction: Use `label, value, limit = l.strip().split(",")`.
+
+
+--------------------------------------------------------------------------------
+5. CELL 33 — DRILL D14: Catch a ValueError (Structural Note)
+--------------------------------------------------------------------------------
+- Markdown Instructions:
+  "1. Create text = 'abc'.
+   2. Inside try:, convert it with float(text) and print the number.
+   3. In except ValueError:, print Not a number: abc instead.
+   4. Now change text to '42' and run again."
+
+- Current Code:
+    try:
+        text = "42"
+        text = float(text)
+        print(text)
+    except ValueError:
+        print(f"Not a number: {text}")
+
+- Flagged Observation:
+  - `text = "42"` was defined inside the `try:` block rather than outside before `try:`.
+  - While it runs and produces `42.0`, the instruction structure expects the variable creation outside `try:`, testing failure on `"abc"` first, then re-testing on `"42"`.
+
+
+--------------------------------------------------------------------------------
+6. CELL 38 — DRILL D16: A list of dicts
+--------------------------------------------------------------------------------
+- Markdown Instructions:
+  "2. Loop over records. For each one, print its label and OVER LIMIT if value is
+   greater than limit, otherwise OK."
+  Expected output:
+    R-001: OK
+    R-002: OVER LIMIT
+    R-003: OK
+
+- Current Code:
+    for record in records:
+        status = "OVER LIMIT" if record["value"]>=record["limit"] else "OK"
+        print(f"{record["label"]} - {status}")
+
+- Actual Output:
+    R-001 - OK
+    R-002 - OVER LIMIT
+    R-003 - OK
+
+- Flagged Mistakes:
+  1) Delimiter mismatch: The output uses hyphen-separated format `f"{record['label']} - {status}"` (`R-001 - OK`), whereas the expected output uses colon-separated format `": "` (`R-001: OK`).
+  2) Comparison logic: Used `>=` instead of `>` ("if value is greater than limit"). If `value == limit`, it should evaluate to `"OK"`, not `"OVER LIMIT"`.
+  Correction:
+    status = "OVER LIMIT" if record["value"] > record["limit"] else "OK"
+    print(f"{record['label']}: {status}")
+
+
+--------------------------------------------------------------------------------
+7. CELL 41 — CHALLENGE C1: Load records safely from a file
+--------------------------------------------------------------------------------
+- Markdown Instructions:
+  "Write load_records(path) with a one-line docstring. It reads label,value,limit lines
+   from a file and returns a list of dicts. If the file does not exist, it prints a clear
+   message and returns an empty list instead of crashing.
+   Then load records_sample.txt and print each record's label and status, as in D16.
+   Test it:
+   | Call | Expected output |
+   | load_records('records_sample.txt') | the same three lines as D16 |
+   | load_records('nope.txt') | a clear message, then [] |"
+
+- Current Code:
+    rec = load_records("records_sample.txt")
+    print(rec)
+
+    rec = load_records("nope.txt")
+    print(rec)
+
+- Actual Output:
+    [{'label': 'R-001', 'value': 87.0, 'limit': 100.0}, {'label': 'R-002', 'value': 120.0, 'limit': 100.0}, {'label': 'R-003', 'value': 45.0, 'limit': 100.0}]
+    Enter a valid file name
+    []
+
+- Flagged Mistakes:
+  1) Missing loop & status printing: The instruction states "Then load records_sample.txt and print each record's label and status, as in D16". The test table specifies expected output as "the same three lines as D16". The code only printed the raw list of dictionaries `print(rec)`.
+  2) Function parameter signature: Defined as `def load_records(path_):` instead of `def load_records(path):`.
+  3) Missing `.strip()`: Like D13, `l.split(",")` was used without calling `.strip()`.
+  Correction:
+    Loop over `records = load_records("records_sample.txt")` and print each record's label and status:
+    for r in records:
+        status = "OVER LIMIT" if r["value"] > r["limit"] else "OK"
+        print(f"{r['label']}: {status}")
+
+
+--------------------------------------------------------------------------------
+8. CELL 43 — CHALLENGE C2: Write the results to a file
+--------------------------------------------------------------------------------
+- Markdown Instructions:
+  "Using your records from C1, write one line per record to a new file called results.txt,
+   in the form label,status. Then read results.txt back and print it.
+   Expected output:
+   R-001,OK
+   R-002,OVER LIMIT
+   R-003,OK"
+
+- Current Code:
+    records = load_records("records_sample.txt")
+    percents = [(record["value"]/record["limit"]) * 100 for record in records ]
+    status = ["OVER LIMIT" if percent>=100 else "OK" for percent in percents]
+    labels = [record["label"] for record in records]
+    with open("results.txt","w") as f:
+        for l,s in zip(labels,status):
+            f.write(f"{l},{s}\n")
+
+- Actual Output:
+    (None / empty output)
+
+- Flagged Mistakes:
+  1) Missing read & print step: The instruction explicitly requires "Then read results.txt back and print it", with the expected output shown. The code never reads or prints `results.txt`, so no output is produced by the cell.
+  2) Comparison logic: Uses `percent >= 100` instead of `percent > 100` (or `record["value"] > record["limit"]`).
+  3) Redundant processing: Re-loads the file and uses three separate list comprehensions and `zip`, rather than reusing the records list from C1 and iterating directly.
+  Correction:
+    Append the read-back step:
+    with open("results.txt", "r") as f:
+        print(f.read().strip())
+
+
+--------------------------------------------------------------------------------
+9. CELL 47 — WRAP-UP SECTION 2: Cheat sheet notes photo
+--------------------------------------------------------------------------------
+- Markdown Instructions:
+  "Take a clear photo of your whole cheat sheet page (your notes for Weeks 1–4), then
+   click into this cell and paste it (Ctrl+V / Cmd+V), or drag the image file in."
+
+- Current Content:
+  *(paste here)*
+
+- Flagged Mistake / Incomplete Task:
+  - The cell still contains only the placeholder text `*(paste here)*`.
+  - The required photo of handwritten notes for Weeks 1–4 has not been pasted or attached.
+
+================================================================================
+END OF AUDIT
+================================================================================

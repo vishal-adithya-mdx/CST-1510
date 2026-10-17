@@ -33,6 +33,11 @@ def print_report(ds_name,rows_loaded,rows_expected,difference,percent,status):
     print(f"Status          :  {status:>10}")
     print("=" * 34)
 
+def check_record(value,limit):
+    difference = limit - value
+    percent = (value/limit) * 100
+    return difference,percent   
+
 
 ol_count = 0
 while True:
@@ -44,8 +49,7 @@ while True:
     value = float(input("Rows Loaded: "))     
     limit = float(input("Rows Expected: "))       
     
-    difference = limit - value
-    percent = (value/limit) * 100    
+    difference,percent = check_record(value,limit) 
     
     status = status_of(percent=percent)  
     if status == "OVER LIMIT":
