@@ -1,0 +1,4 @@
+Aahil,IT,69
+Alan,Space Research,99
+Zaydan,Bio,100
+Adithya,AI and DS,10
