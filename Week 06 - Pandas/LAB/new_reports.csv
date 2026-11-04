@@ -1,0 +1,6 @@
+dataset,rows_loaded,rows_expected,percent,status
+survey1,85,100,85.0,OK
+survey2,92,100,92.0,WARNING
+survey3,78,100,78.0,OK
+survey4,110,100,110.00000000000001,OVER LIMIT
+survey5,95,100,95.0,WARNING
